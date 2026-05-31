@@ -91,21 +91,7 @@ cp /path/to/test.csv ./input/
 2. Подождите завершения обработки (в логах: `Scoring pipeline finished successfully`).
 3. Проверьте `./output/` — должны появиться CSV, JSON и PNG.
 
-### Локальный запуск без Docker (опционально)
 
-```bash
-python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# Linux/macOS:
-source .venv/bin/activate
-
-pip install -r requirements.txt
-python scripts/build_model.py
-python app/app.py
-```
-
-> Для локального запуска замените пути `/app/input`, `/app/output`, `/app/logs` в `app/app.py` на `./input`, `./output`, `./logs` или создайте симлинки.
 
 ## Модель
 
@@ -132,32 +118,9 @@ python app/app.py
 | **Частоты на inference** | Train-частоты + текущий test-батч (как train+test в ноутбуке) |
 | **Цель** | Стабильный Docker-сервис для сдачи MLOps ДЗ (зачёт на 4/5) |
 
-> **Почему упрощено:** задание оценивает навыки Docker и упаковки ML-сервиса, а не качество Kaggle-модели. Один HGBR быстрее собирается (~2–5 мин vs 10–30+ мин у ансамбля), проще поддерживать и достаточен для демонстрации inference.
 
-### Технические детали inference
 
-- Предсказания обрезаются к `[0, 365]` (ограничение соревнования)
-- Feature importances — из `model.feature_importances_` (топ-5 в JSON)
-- График плотности — KDE/hist по предсказанным скорам (PNG)
 
-Обучение — один раз при `docker build`, в runtime только inference.
-
----
-
-## Соответствие критериям задания
-
-| Критерий | Статус |
-|----------|--------|
-| `test.csv` через `./input` | ✅ Watchdog в `app/app.py` |
-| `sample_submission.csv` в `./output` | ✅ Колонки `index`, `prediction` |
-| JSON top-5 feature importances | ✅ `feature_importance_top5_*.json` |
-| PNG график плотности скоров | ✅ `score_density_*.png` |
-| Препроцессинг отдельным скриптом | ✅ `src/preprocessing.py` |
-| Скоринг отдельным скриптом | ✅ `src/scorer.py` |
-| Модель реально применяется | ✅ HGBR из `model_bundle.joblib` |
-| Inference-only в контейнере | ✅ Обучение только при `docker build` |
-| CPU inference | ✅ scikit-learn, без GPU |
-| README + requirements + Dockerfile | ✅ |
 
 ### Цепочка сборки Docker (логика)
 
@@ -177,67 +140,5 @@ docker run + test.csv в ./input
   → read_csv → run_preproc → make_pred → save CSV/JSON/PNG
 ```
 
-**Важно для сборки:** файл `train_data/train.csv` должен быть на месте **до** `docker build` (в GitHub его нет — проверяющий добавляет сам).
+**Важно для сборки:** файл `train_data/train.csv` должен быть на месте **до** `docker build` (в GitHub его нет - пожалуйста, добавьте его из кэггл моревноания).
 
----
-
-## Как выложить проект на GitHub
-
-### Шаг 1. Создайте аккаунт и репозиторий
-
-1. Зарегистрируйтесь на [github.com](https://github.com), если аккаунта ещё нет.
-2. Нажмите **+ → New repository**.
-3. Имя, например: `teta-ml-2026-mlops-hw`.
-4. Выберите **Public** (репозиторий должен быть публичным для проверки).
-5. **Не** добавляйте README, .gitignore и license — они уже есть в проекте.
-6. Нажмите **Create repository**.
-
-### Шаг 2. Установите Git (если не установлен)
-
-- Windows: [https://git-scm.com/download/win](https://git-scm.com/download/win)
-- После установки откройте **Git Bash** или PowerShell.
-
-### Шаг 3. Инициализируйте git в папке проекта
-
-```bash
-cd путь/к/teta_mlops_service
-
-git init
-git add .
-git commit -m "MLOps HW: teta-ml-2026 inference service"
-```
-
-> `train.csv`, `test.csv` и `models/*.joblib` в `.gitignore` не попадут в репозиторий — это нормально. Проверяющий положит `train.csv` в `train_data/` перед `docker build`.
-
-### Шаг 4. Привяжите удалённый репозиторий и отправьте код
-
-На странице созданного репозитория GitHub скопируйте URL (HTTPS), затем:
-
-```bash
-git branch -M main
-git remote add origin https://github.com/ВАШ_ЛОГИН/teta-ml-2026-mlops-hw.git
-git push -u origin main
-```
-
-GitHub попросит авторизацию (логин + Personal Access Token или браузер).
-
-### Шаг 5. Проверка перед сдачей
-
-- Репозиторий **Public**
-- В README есть инструкция по `docker build` / `docker run`
-- После `git clone` + `train.csv` в `train_data/` образ собирается без ошибок
-- Сервис принимает `test.csv` и выдаёт `sample_submission`, JSON с FI и PNG
-
-### Что отправить преподавателю
-
-Ссылку на публичный репозиторий, например:
-
-```
-https://github.com/ВАШ_ЛОГИН/teta-ml-2026-mlops-hw
-```
-
----
-
-## Disclaimer
-
-Учебный проект для курса MLOps. Датасет — [teta-ml-2026](https://www.kaggle.com/competitions/teta-ml-2026).
