@@ -1,8 +1,5 @@
 # Teta ML 2026 — ML Inference Service (MLOps HW)
 
-Сервис для **batch-скоринга** модели из соревнования [teta-ml-2026](https://www.kaggle.com/competitions/teta-ml-2026) (Kaggle).  
-Шаблон архитектуры взят с практики MLOps: [mts25_mlops_hw1_fraud_detector](https://github.com/NikitaMalykhin/mts25_mlops_hw1_fraud_detector).
-
 Сервис следит за папкой `./input`, принимает `test.csv`, выполняет препроцессинг и скоринг моделью, затем сохраняет результаты в `./output`.
 
 ## Архитектура
