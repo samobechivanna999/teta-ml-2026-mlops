@@ -113,7 +113,6 @@ cp /path/to/test.csv ./input/
 | **Обучение** | Один раз при `docker build` на полном `train.csv`; в runtime — только inference |
 | **TE на inference** | Карты TE считаются по всему train (корректно для продакшн-inference, без OOF) |
 | **Частоты на inference** | Train-частоты + текущий test-батч (как train+test в ноутбуке) |
-| **Цель** | Стабильный Docker-сервис для сдачи MLOps ДЗ (зачёт на 4/5) |
 
 
 
